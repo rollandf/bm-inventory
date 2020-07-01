@@ -35,6 +35,12 @@ func (o *RegisterClusterReader) ReadResponse(response runtime.ClientResponse, co
 			return nil, err
 		}
 		return nil, result
+	case 401:
+		result := NewRegisterClusterUnauthorized()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewRegisterClusterInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -102,6 +108,39 @@ func (o *RegisterClusterBadRequest) GetPayload() *models.Error {
 }
 
 func (o *RegisterClusterBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewRegisterClusterUnauthorized creates a RegisterClusterUnauthorized with default headers values
+func NewRegisterClusterUnauthorized() *RegisterClusterUnauthorized {
+	return &RegisterClusterUnauthorized{}
+}
+
+/*RegisterClusterUnauthorized handles this case with default header values.
+
+Error.
+*/
+type RegisterClusterUnauthorized struct {
+	Payload *models.Error
+}
+
+func (o *RegisterClusterUnauthorized) Error() string {
+	return fmt.Sprintf("[POST /clusters][%d] registerClusterUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *RegisterClusterUnauthorized) GetPayload() *models.Error {
+	return o.Payload
+}
+
+func (o *RegisterClusterUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.Error)
 

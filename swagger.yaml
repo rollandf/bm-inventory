@@ -16,6 +16,11 @@ consumes:
 produces:
   - application/json
 
+securityDefinitions:
+  user:
+    type: apiKey
+    in: header
+    name: accesstoken
 
 paths:
   /clusters:
@@ -39,12 +44,18 @@ paths:
           description: Error.
           schema:
             $ref: '#/definitions/error'
+        401:
+          description: Error.
+          schema:
+            $ref: '#/definitions/error'
         500:
           description: Error.
           schema:
             $ref: '#/definitions/error'
 
     get:
+      security:
+        - user: []
       tags:
         - installer
       summary: Retrieves the list of OpenShift bare metal clusters.

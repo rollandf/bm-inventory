@@ -460,6 +460,7 @@ func (a *Client) ListClusters(ctx context.Context, params *ListClustersParams) (
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListClustersReader{formats: a.formats},
+		AuthInfo:           a.authInfo,
 		Context:            ctx,
 		Client:             params.HTTPClient,
 	})

@@ -101,6 +101,50 @@ func (o *RegisterClusterBadRequest) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
+// RegisterClusterUnauthorizedCode is the HTTP code returned for type RegisterClusterUnauthorized
+const RegisterClusterUnauthorizedCode int = 401
+
+/*RegisterClusterUnauthorized Error.
+
+swagger:response registerClusterUnauthorized
+*/
+type RegisterClusterUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *models.Error `json:"body,omitempty"`
+}
+
+// NewRegisterClusterUnauthorized creates RegisterClusterUnauthorized with default headers values
+func NewRegisterClusterUnauthorized() *RegisterClusterUnauthorized {
+
+	return &RegisterClusterUnauthorized{}
+}
+
+// WithPayload adds the payload to the register cluster unauthorized response
+func (o *RegisterClusterUnauthorized) WithPayload(payload *models.Error) *RegisterClusterUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the register cluster unauthorized response
+func (o *RegisterClusterUnauthorized) SetPayload(payload *models.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *RegisterClusterUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // RegisterClusterInternalServerErrorCode is the HTTP code returned for type RegisterClusterInternalServerError
 const RegisterClusterInternalServerErrorCode int = 500
 

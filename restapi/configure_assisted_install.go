@@ -129,6 +129,9 @@ type Config struct {
 	// Authorizer is used to authorize a request after the Auth function was called using the "Auth*" functions
 	// and the principal was stored in the context in the "AuthKey" context value.
 	Authorizer func(*http.Request) error
+
+	// AuthUser Applies when the "accesstoken" header is set
+	AuthUser func(token string) (interface{}, error)
 }
 
 // Handler returns an http.Handler given the handler configuration
@@ -153,6 +156,14 @@ func HandlerAPI(c Config) (http.Handler, *operations.AssistedInstallAPI, error) 
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.UserAuth = func(token string) (interface{}, error) {
+		if c.AuthUser == nil {
+			return token, nil
+		}
+		return c.AuthUser(token)
+	}
+
+	api.APIAuthorizer = authorizer(c.Authorizer)
 	api.InstallerCancelInstallationHandler = installer.CancelInstallationHandlerFunc(func(params installer.CancelInstallationParams) middleware.Responder {
 		ctx := params.HTTPRequest.Context()
 		return c.InstallerAPI.CancelInstallation(ctx, params)
@@ -209,8 +220,9 @@ func HandlerAPI(c Config) (http.Handler, *operations.AssistedInstallAPI, error) 
 		ctx := params.HTTPRequest.Context()
 		return c.InstallerAPI.InstallCluster(ctx, params)
 	})
-	api.InstallerListClustersHandler = installer.ListClustersHandlerFunc(func(params installer.ListClustersParams) middleware.Responder {
+	api.InstallerListClustersHandler = installer.ListClustersHandlerFunc(func(params installer.ListClustersParams, principal interface{}) middleware.Responder {
 		ctx := params.HTTPRequest.Context()
+		ctx = storeAuth(ctx, principal)
 		return c.InstallerAPI.ListClusters(ctx, params)
 	})
 	api.VersionsListComponentVersionsHandler = versions.ListComponentVersionsHandlerFunc(func(params versions.ListComponentVersionsParams) middleware.Responder {
