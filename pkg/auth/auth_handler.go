@@ -27,20 +27,17 @@ type AuthPayload struct {
 type Config struct {
 	EnableAuth  bool   `envconfig:"ENABLE_AUTH" default:"true"`
 	JwkCertURL string `envconfig:"JWKS_URL" default:"https://api.openshift.com/.well-known/jwks.json"`
-	JwkCertCA  string `envconfig:"JWKS_CA" default:""`
 }
 
 type AuthHandler struct {
 	CertURL string
-	CertCA  string
 	keyMap  map[string]*rsa.PublicKey
 }
 
 var authHandler = &AuthHandler{}
 
-func InitAuthHandler(certURL string, certCA string) {
+func InitAuthHandler(certURL string) {
 	authHandler.CertURL = certURL
-	authHandler.CertCA = certCA
 	err := authHandler.populateKeyMap()
 	if err != nil {
 		logrus.Fatalln("Failed to init auth manager,", err)
@@ -52,10 +49,6 @@ func (a *AuthHandler) populateKeyMap() error {
 	trustedCAs, err := x509.SystemCertPool()
 	if err != nil {
 		return fmt.Errorf("can't load system trusted CAs: %v", err)
-	}
-
-	if a.CertCA != "" {
-		trustedCAs.AppendCertsFromPEM([]byte(a.CertCA))
 	}
 
 	// Try to read the JWT public key object file.
