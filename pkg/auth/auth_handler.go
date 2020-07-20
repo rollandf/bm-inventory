@@ -1,15 +1,18 @@
 package auth
 
 import (
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
-	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/runtime/security"
 	"net/http"
 	"strings"
 
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/security"
+
 	"github.com/dgrijalva/jwt-go"
+	"github.com/filanov/bm-inventory/pkg/ocm"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,11 +35,13 @@ type Config struct {
 type AuthHandler struct {
 	CertURL string
 	keyMap  map[string]*rsa.PublicKey
+	client ocm.Client
 }
 
 var authHandler = &AuthHandler{}
 
-func InitAuthHandler(certURL string) {
+func InitAuthHandler(certURL string, ocmCLient ocm.Client) {
+	authHandler.client = ocmCLient
 	authHandler.CertURL = certURL
 	err := authHandler.populateKeyMap()
 	if err != nil {
@@ -74,6 +79,8 @@ func (a *AuthHandler) getValidationToken(token *jwt.Token) (interface{}, error) 
 
 func AuthAgentAuth (token string) (interface{}, error) {
 	//TODO: Validate agent pull secret
+	logrus.Error("AuthAgentAuth")
+	authHandler.client.Authentication.AuthenticatePullSecret(context.Background(),"FREDPULLSECRET")
 	return "user_foo", nil
 }
 

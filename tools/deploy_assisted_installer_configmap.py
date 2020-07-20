@@ -43,6 +43,8 @@ def main():
             data = data.replace("REPLACE_DOMAINS", '"{}"'.format(deploy_options.base_dns_domains))
             data = data.replace("IS_AUTH_ENABLED", '"{}"'.format(os.environ.get("ENABLE_AUTH", "false")))
             data = data.replace("REPLACE_JWKS_URL", '"{}"'.format(os.environ.get("JWKS_URL", "https://api.openshift.com/.well-known/jwks.json")))
+            data = data.replace("REPLACE_OCM_CLIENT_SECRET", '"{}"'.format(os.environ.get("OCM_CLIENT_SECRET", "bccc7edb-25eb-4b67-a6e0-c4a3a6fce162")))
+            data = data.replace("REPLACE_OCM_CLIENT_ID", '"{}"'.format(os.environ.get("OCM_CLIENT_ID", "assisted-installer")))
             print("Deploying {}".format(DST_FILE))
 
             versions = {"IMAGE_BUILDER": "installer-image-build",
